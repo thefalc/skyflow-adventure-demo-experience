@@ -1,14 +1,11 @@
-# Data Residency Demo Application
+# Skyflow Adventure Demo Experience
 
 ## Overview
 
-This application demonstrates Skyflow's support for secure data collection, data residency,
+This application demonstrates Skyflow's support for secure data collection, data sharing,
 and data governance.
 
-There's also an additional view that demonstrates tokenization into a data warehouse.
-
-Included are the vault schema definition and seed data along with basic build and run scripts
-to start up the application.
+The application is interactive and uses a Skyflow vault while teaching the user about Skyflow vaults.
 
 ## Requirements
 
@@ -55,7 +52,7 @@ npm install
 node import_data.js
 ```
 
-## Running the data residency demo
+## Running the demo
 
 In your terminal, navigate to the demo root directory and execute:
 
@@ -70,9 +67,7 @@ Next, either run the demo in development mode or in production mode.
 npm run dev
 ```
 
-Go to [http://localhost:4000](http://localhost:4000) to view the data residency app or
-[http://localhost:4000/data-warehouse](http://localhost:4000/data-warehouse)
-to view the warehouse view.
+Go to [http://localhost:3000](http://localhost:3000) to view the user experience.
 
 **Production mode**
 ```
@@ -80,6 +75,4 @@ npm build
 npm start
 ```
 
-Go to [http://localhost:4000](http://localhost:4000) to view the data residency app or
-[http://localhost:4000/data-warehouse](http://localhost:4000/data-warehouse)
-to view the warehouse view.
+Go to [http://localhost:3000](http://localhost:3000) to view the user experience.
