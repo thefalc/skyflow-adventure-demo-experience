@@ -1,0 +1,29 @@
+{
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "bootstrap": "^5.1.3",
+    "crypto": "^1.0.1",
+    "iron-session": "^6.0.5",
+    "moment": "^2.29.1",
+    "next": "latest",
+    "qs": "^6.10.3",
+    "react": "^17.0.2",
+    "react-bootstrap": "^2.1.1",
+    "react-console-emulator": "^5.0.2",
+    "react-dom": "^17.0.2",
+    "react-fade-in": "^2.0.1",
+    "react-moment": "^1.1.1",
+    "skyflow-js": "^1.14.0",
+    "skyflow-node": "^1.3.0",
+    "swr": "^0.1.18",
+    "uuidv4": "^6.2.12"
+  },
+  "devDependencies": {
+    "sass": "^1.53.0"
+  }
+}
