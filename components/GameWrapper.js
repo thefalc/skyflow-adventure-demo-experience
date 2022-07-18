@@ -188,7 +188,7 @@ class GameWrapper extends Component {
       n: {
         description: 'Show Luke congrats message.',
         fn: () => {
-          this.showCongratsMessage();
+          this.componentDidUpdateshowCongratsMessage();
 
           return '';
         }
@@ -359,7 +359,7 @@ class GameWrapper extends Component {
               <div class="stars"></div>
               <div class="twinkling"></div> 
               <div class="clouds"></div>
-              <FadeIn transitionDuration="1000">
+              <FadeIn transitionDuration="1500" delay="200">
                 <div class="body">
                   <pre className="text-center" style={{margin: "0 auto"}}>{titleString}</pre>
                   <p className="text-center" style={{margin: 0, padding: 0}}>{subTitleString}</p>

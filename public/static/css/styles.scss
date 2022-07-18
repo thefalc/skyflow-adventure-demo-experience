@@ -27,29 +27,8 @@ body {
 
 .body {
   z-index: 3;
-  display:block;
+  display: block;
   position: relative;
-}
-
-.title h1{
-  font-size: 36px;
-  font-family: 'Lato', sans-serif;
-  margin-top:10em;
-  margin-left: auto;
-  margin-right:auto;
-  text-align: center;
-
-  /* Stryling the text and giving it gradiant */
-  color:#ffffff;
-  background: -webkit-linear-gradient(#eee, #333);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 6px 6px 0px rgba(0,0,0,0.2);
-
-  /* Make sure text is infront of background images */
-  display:block;
-  position: relative;
-  z-index: 3;
 }
 
 @keyframes move-twink-back {
@@ -63,7 +42,7 @@ body {
 }
 
 .stars, .twinkling, .clouds {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
