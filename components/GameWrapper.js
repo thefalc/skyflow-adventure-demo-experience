@@ -1,10 +1,9 @@
 import Layout from "./Layout";
 import React, { Component } from "react";
-import Terminal from 'react-console-emulator';
+import Terminal from '/react-console-emulator/Terminal';
 import FadeIn from 'react-fade-in';
 import 'bootstrap/dist/css/bootstrap.css';
 import Constants from '/defs/Constants.js'
-import TerminalMessage from "react-console-emulator/dist/TerminalMessage";
 
 // Various game states
 const GAME_STATE_START = 'start';
@@ -59,7 +58,6 @@ class GameWrapper extends Component {
         usage: 'name <string>',
         fn: function () {
           this.setState({ playerName: `${Array.from(arguments).join(' ')}`, gameState: GAME_STATE_GALACTIC_ID });
-          console.log(`name: ${Array.from(arguments).join(' ')}`);
 
           return Constants.R2_GREETING_PROMPT;
         }
@@ -188,7 +186,7 @@ class GameWrapper extends Component {
       n: {
         description: 'Show Luke congrats message.',
         fn: () => {
-          this.componentDidUpdateshowCongratsMessage();
+          this.showCongratsMessage();
 
           return '';
         }
@@ -329,8 +327,102 @@ class GameWrapper extends Component {
     })
   }
 
-  componentDidMount() {
-    
+  /**
+   * Custom error handler for the terminal component. Need to factor in the game state when
+   * deciding if a command should exist or not.
+   * @param {string} command The entered command by a user.
+   * @param {string} gameState The current state of the game.
+    * @param {array} args The arguments for a command passed by a user.
+   * @returns 
+   */
+  errorHandler(command, state, args) {
+    const gameState = state.gameState;
+
+    if(gameState === GAME_STATE_START) {
+      if(command !== 'c') {
+        return 'Please enter the letter c to begin your adventure.';
+      }
+      return false;
+    }
+    else if(gameState === GAME_STATE_SHARE_VIEW) {
+      if(!['c', 's'].includes(command)) {
+        return 'Please enter the letter c to continue your adventure or s to share again.';
+      }
+      return false;
+    }
+    else if(gameState === GAME_STATE_UPGRADE) {
+        if(command !== 'u') {
+          return 'Please enter the letter u to upgrade R2.';
+        }
+        return false;
+    }
+    else if(gameState === GAME_STATE_UPLOAD) {
+        if(command !== 'u') {
+          return 'Please enter the letter u to upload your transmission.';
+        }
+        return false;
+    }
+    else if(gameState === GAME_STATE_NAME) {
+      if(args !== undefined) {
+        let args = [];
+        let counter = 0;
+        for (let prop in arguments) {
+          if(counter++ > 1) args.push(arguments[prop]);
+        }
+
+        if(args.length !== 2 || command.toLocaleLowerCase() !== 'name') {
+          return 'Sorry, please enter name &lt;first_name last_name&gt;.';
+        }
+        return false;
+      }
+      else {
+        return 'Sorry, please enter name &lt;first_name last_name&gt;.';
+      }
+    }
+    else if(gameState === GAME_STATE_GALACTIC_ID) {
+      if(args !== undefined) {
+        let args = [];
+        let counter = 0;
+        for (let prop in arguments) {
+          if(counter++ > 1) args.push(arguments[prop]);
+        }
+
+        if(args.length !== 1 || args[0].length < 8 || command.toLocaleLowerCase() !== 'id') {
+          return 'Sorry, please enter ID &lt;your 8 digit id&gt;.';
+        }
+        return false; 
+      }
+      else {
+        return 'Sorry, please enter ID &lt;your 8 digit id&gt;.';
+      }
+    }
+    else if(gameState === GAME_STATE_DEATH_STAR) {
+      if(!['1', '2', '3', '4'].includes(command)) {
+        return 'Please choose either 1, 2, 3, or 4 to select the location of the Death Star.';
+      }
+      return false;
+    }
+    else if(gameState === GAME_STATE_SEND_TRANSMISSION) {
+      if(!['1', '2', '3', '4'].includes(command)) {
+        return 'Please choose either 1, 2, 3, or 4 to select who to transmit the message to.';
+      }
+      return false;
+    }
+    else if(gameState === GAME_STATE_TRANSMISSION_SENT) {
+      if(!['y', 'n'].includes(command.toLocaleLowerCase())) {
+        return 'Please enter y for yes to view the message or n for no to continue.';
+      }
+      return false;
+    }
+    else if(command.toLocaleLowerCase() === 's') {
+      if(state.playerName.length === 0 || state.galacticId.length === 0
+        || state.deathStarLocation.length === 0) {
+        return 'Sorry, but this is an invalid command.';
+      }
+      return false;
+    }
+
+    return false;
   }
 
   render() {
@@ -373,6 +465,8 @@ class GameWrapper extends Component {
                     disableOnProcess
                     dangerMode
                     ignoreCommandCase
+                    viewState={this.state}
+                    errorHandler={this.errorHandler}
                     autoFocus='true'
                     disabled={this.state.isProgressing}
                     locked={this.state.isProgressing}

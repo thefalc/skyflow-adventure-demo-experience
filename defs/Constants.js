@@ -19,7 +19,7 @@ const R2_UPGRADED_PROVIDE_NAME_PROMPT = '<br/>R2 is now equipped with the latest
   'You\'re ready to inform the rebels about the location of the Death Star.<br/><br/>To begin, introduce yourself to ' +
   'R2 with the following command.<br/><br/>' +
   '<div style="width: 50%; border: 1px dashed #fff; padding: 10px;">' +
-  'name &lt;your name&gt;' +
+  'name &lt;first_name last_name&gt;' +
   '</div>';
 
 const R2_GREETING_PROMPT = 'R2 says, “BeeYoop BeeDeepBoom Weeop DEEpaEEya”, which means, “Nice to meet you ' +
@@ -28,7 +28,7 @@ const R2_GREETING_PROMPT = 'R2 says, “BeeYoop BeeDeepBoom Weeop DEEpaEEya”, 
   '8 digit Galactic ID with R2. R2 will secure your ID within the vault, and then even your friends within the ' +
   'REBEL ALLIANCE will only be able to see the last few digits—a partially redacted version.<br/><br/>' +
   '<div style="width: 50%; border: 1px dashed #fff; padding: 10px;">' +
-  'D &lt;your ID&gt;' +
+  'ID &lt;your 8 digit ID&gt;' +
   '</div>';
 
 const DEATH_STAR_LOCATION_PROMPT = 'Choosing from the menu below, which star system the Death Star is located in?<br/><br/>' +
