@@ -8,7 +8,6 @@ const {
   SKYFLOW_VAULT_API_URL,
   SERVICE_ACCOUNT_KEY
 } = require('./config');
-const { Route53RecoveryReadiness } = require('aws-sdk');
 
 const skyflowUtil = {
   /**
