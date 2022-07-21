@@ -47,10 +47,13 @@ export default class Terminal extends Component {
 
   /* istanbul ignore next: Covered by interactivity tests */
   scrollToBottom = () => {
+    console.log('scrolling');
     const rootNode = this.terminalRoot.current
 
+    this.el.scrollIntoView({ behavior: 'smooth' });
+
     // This may look ridiculous, but it is necessary to decouple execution for just a millisecond in order to scroll all the way
-    setTimeout(() => { rootNode.scrollTop = rootNode.scrollHeight }, 1)
+    // setTimeout(() => { rootNode.scrollTop = rootNode.scrollHeight }, 1)
   }
 
   validateCommands = () => {
@@ -185,9 +188,15 @@ export default class Terminal extends Component {
 
       this.setState({ processing: false }, () => {
         this.clearInput()
-        if (!this.props.noAutoScroll) this.scrollToBottom()
+        this.scrollToBottom()
         if (this.props.commandCallback) this.props.commandCallback(commandResult)
+
+        this.focusTerminal()
       })
+
+      this.clearInput()
+      this.scrollToBottom()
+      this.focusTerminal()
     })
   }
 
@@ -277,6 +286,8 @@ export default class Terminal extends Component {
               autoComplete='off'
               disabled={this.props.disabled || (this.props.disableOnProcess && /* istanbul ignore next: Covered by interactivity tests */ this.state.processing)}
             />
+
+            <div ref={el => { this.el = el; }} />
           </div>
         </div>
       </div>

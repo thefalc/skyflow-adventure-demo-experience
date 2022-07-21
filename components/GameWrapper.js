@@ -286,6 +286,8 @@ class GameWrapper extends Component {
     this.setState({ isProgressing: true, priorText: '<br/>' }, () => {
       const terminal = this.terminal.current
 
+      terminal.scrollToBottom();
+
       const interval = setInterval(() => {
         if (this.state.progress === 100) { // Stop at 100%
           if(this.state.progressState === 'Vault APIs') {
