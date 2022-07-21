@@ -1,6 +1,5 @@
 const axios = require('axios');
 const Qs = require('qs');
-const AWS = require('aws-sdk');
 
 // Setup for the Skyflow Vault
 const { Skyflow, generateBearerTokenFromCreds } = require('skyflow-node');
