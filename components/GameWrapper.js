@@ -36,7 +36,8 @@ class GameWrapper extends Component {
       playerName: '',
       galacticId: '',
       deathStarLocation: '',
-      sharedWithName: ''
+      sharedWithName: '',
+      contactEmail: ''
     }
 
     this.commands = {
@@ -70,6 +71,15 @@ class GameWrapper extends Component {
           console.log(`ID: ${Array.from(arguments).join(' ')}`);
 
           return Constants.DEATH_STAR_LOCATION_PROMPT;
+        }
+      },
+      email: {
+        description: 'Email passed as string.',
+        usage: 'email <string>',
+        fn: function () {
+          this.setState({ contactEmail: `${Array.from(arguments).join(' ')}`, gameState: GAME_STATE_GALACTIC_ID });
+
+          return Constants.THANK_YOU_FOR_SHARING_PROMPT;
         }
       },
       1: {
@@ -126,22 +136,6 @@ class GameWrapper extends Component {
             this.setState({ gameState: GAME_STATE_TRANSMISSION_SENT, sharedWithName: 'Jar Jar Binks' });
             this.sendTransmission();
           }
-        }
-      },
-      async: {
-        description: 'This command runs an asynchronous task.',
-        fn: async () => {
-          const asyncTask = async () => 'Hello from a promise!'
-          const result = await asyncTask()
-          return result
-        }
-      },
-      delay: {
-        description: 'Delays return of value by 1000 ms.',
-        fn: () => {
-          return new Promise(resolve => {
-            setTimeout(() => resolve('Finished!'), 1000)
-          })
         }
       },
       u: {
@@ -290,6 +284,10 @@ class GameWrapper extends Component {
 
       const interval = setInterval(() => {
         if (this.state.progress === 100) { // Stop at 100%
+          terminal.clearInput();
+          terminal.scrollToBottom();
+          terminal.focusTerminal();
+
           if(this.state.progressState === 'Vault APIs') {
             clearInterval(interval);
 
@@ -298,7 +296,13 @@ class GameWrapper extends Component {
               () => terminal.pushToStdout(`${this.state.priorText}`));
 
             this.setState({ isProgressing: false, progress: 0, progressText: '', progressState: '', priorText: '' },
-              () => terminal.pushToStdout(Constants.R2_UPGRADED_PROVIDE_NAME_PROMPT));
+              () => {
+                terminal.pushToStdout(Constants.R2_UPGRADED_PROVIDE_NAME_PROMPT);
+
+                terminal.clearInput();
+                terminal.scrollToBottom();
+                terminal.focusTerminal();
+              });
           }
           else if(this.state.progressState === 'Encryption') {
             let priorText = this.state.priorText + `${this.state.progressState}: ${this.state.progress}% <span style="color: #3ED631">√</span><br/>`;
@@ -373,12 +377,12 @@ class GameWrapper extends Component {
         }
 
         if(args.length !== 2 || command.toLocaleLowerCase() !== 'name') {
-          return 'Sorry, please enter name &lt;first_name last_name&gt;.';
+          return 'Sorry, please enter name &lt;first_name last_name&gt;. For example "name Joe Smith".';
         }
         return false;
       }
       else {
-        return 'Sorry, please enter name &lt;first_name last_name&gt;.';
+        return 'Sorry, please enter name &lt;first_name last_name&gt;. For example "name Joe Smith".';
       }
     }
     else if(gameState === GAME_STATE_GALACTIC_ID) {
@@ -391,12 +395,12 @@ class GameWrapper extends Component {
 
         if(args.length !== 1 || args[0].length < 8 || !(/^\d+$/.test(args[0]))
           || command.toLocaleLowerCase() !== 'id') {
-          return 'Sorry, please enter ID &lt;your 8 digit id&gt;.';
+          return 'Sorry, please enter ID &lt;your 8 digit id&gt;. For example "ID 12345678".';
         }
         return false; 
       }
       else {
-        return 'Sorry, please enter ID &lt;your 8 digit id&gt;.';
+        return 'Sorry, please enter ID &lt;your 8 digit id&gt;. For example "ID 12345678".';
       }
     }
     else if(gameState === GAME_STATE_DEATH_STAR) {
@@ -423,6 +427,23 @@ class GameWrapper extends Component {
         return 'Sorry, but this is an invalid command.';
       }
       return false;
+    }
+    else if(command.toLocaleLowerCase() === 'email') {
+      if(args !== undefined) {
+        let args = [];
+        let counter = 0;
+        for (let prop in arguments) {
+          if(counter++ > 1) args.push(arguments[prop]);
+        }
+
+        if(args.length !== 1 || !(/^$|^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,})$/.test(args[0]))) {
+          return 'Sorry, please enter email &lt;your email&gt;. For example "email joe@email.com".';
+        }
+        return false; 
+      }
+      else {
+        return 'Sorry, please enter email &lt;your email&gt;. For example "email joe@email.com".';
+      }
     }
 
     return false;

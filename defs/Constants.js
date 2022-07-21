@@ -109,7 +109,9 @@ const CONGRATS_AS_LUKE_PROMPT = 'Congratulations!<br/><br/>' +
   'Luke Skywalker and the rest of the REBEL ALLIANCE are on their way to destroy it and put a stop to the ' +
   'Empire once and for all.<br/><br/>' +
   '<img src="/static/images/death-star.png" /><br/><br/>' +
+  'If you enjoyed that experience, please share your email to learn more.<br/><br/>' +
   '<div style="width: 50%; border: 1px dashed #fff; padding: 10px;">' +
+  'email &lt;your email&gt;<br/>' +
   'r - return to start<br/>' +
   's - share again<br/>' +
   '</div>';
@@ -119,7 +121,9 @@ const CONGRATS_AS_LEIA_PROMPT = 'Congratulations!<br/><br/>' +
   'Luke Skywalker and the rest of the REBEL ALLIANCE are on their way to destroy it and put a stop to the ' +
   'Empire once and for all.<br/><br/>' +
   '<img src="/static/images/death-star.png" /><br/><br/>' +
+  'If you enjoyed that experience, please share your email to learn more.<br/><br/>' +
   '<div style="width: 50%; border: 1px dashed #fff; padding: 10px;">' +
+  'email &lt;your email&gt;<br/>' +
   'r - return to start<br/>' +
   's - share again<br/>' +
   '</div>';
@@ -130,7 +134,9 @@ const CONGRATS_AS_DARTH_VADAR_PROMPT = 'Congratulations!<br/><br/>' +
   'The REBEL ALLIANCE are on their way to destroy the Death Star and put a stop to the ' +
   'Empire once and for all.<br/><br/>' +
   '<img src="/static/images/death-star.png" /><br/><br/>' +
+  'If you enjoyed that experience, please share your email to learn more.<br/><br/>' +
   '<div style="width: 50%; border: 1px dashed #fff; padding: 10px;">' +
+  'email &lt;your email&gt;<br/>' +
   'r - return to start<br/>' +
   's - share again<br/>' +
   '</div>';
@@ -141,6 +147,17 @@ const CONGRATS_AS_JAR_JAR_PROMPT = 'Congratulations!<br/><br/>' +
   'The REBEL ALLIANCE are on their way to destroy the Death Star and put a stop to the ' +
   'Empire once and for all.<br/><br/>' +
   '<img src="/static/images/death-star.png" /><br/><br/>' +
+  'If you enjoyed that experience, please share your email to learn more.<br/><br/>' +
+  '<div style="width: 50%; border: 1px dashed #fff; padding: 10px;">' +
+  'email &lt;your email&gt;<br/>' +
+  'r - return to start<br/>' +
+  's - share again<br/>' +
+  '</div>';
+
+const THANK_YOU_FOR_SHARING_PROMPT = 'We\'re glad you enjoyed battling the Empire and learning ' +
+  'about data privacy vaults.<br/><br/>' +
+  'Thank your for sharing your email. We will send you more information about Skyflow. Don\'t worry ' +
+  'these emails will only be occassional and you can unsubscribe at any point.<br/><br/>' +
   '<div style="width: 50%; border: 1px dashed #fff; padding: 10px;">' +
   'r - return to start<br/>' +
   's - share again<br/>' +
@@ -162,5 +179,6 @@ const CONGRATS_AS_JAR_JAR_PROMPT = 'Congratulations!<br/><br/>' +
     CONGRATS_AS_LUKE_PROMPT,
     CONGRATS_AS_LEIA_PROMPT,
     CONGRATS_AS_DARTH_VADAR_PROMPT,
-    CONGRATS_AS_JAR_JAR_PROMPT
+    CONGRATS_AS_JAR_JAR_PROMPT,
+    THANK_YOU_FOR_SHARING_PROMPT
   }
