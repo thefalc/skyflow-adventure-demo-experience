@@ -389,7 +389,8 @@ class GameWrapper extends Component {
           if(counter++ > 1) args.push(arguments[prop]);
         }
 
-        if(args.length !== 1 || args[0].length < 8 || command.toLocaleLowerCase() !== 'id') {
+        if(args.length !== 1 || args[0].length < 8 || !(/^\d+$/.test(args[0]))
+          || command.toLocaleLowerCase() !== 'id') {
           return 'Sorry, please enter ID &lt;your 8 digit id&gt;.';
         }
         return false; 
