@@ -62,35 +62,36 @@ const VIEW_MESSAGE_PROMPT = '<br/>Would you like to view the message as %s will 
   'n - no<br/>' +
   '</div>';
 
-const VIEW_AS_LUKE_PROMPT = 'Luke, the Death Star is located within %s.<br/><br/>' +
-  'Secure transmission from Sean F****r, Galactic ID: XXXX XXXX %n.<br/><br/>' +
+const VIEW_AS_LUKE_PROMPT = 'Message transmission:<br/><br/>' +
+  'Luke, the Death Star is located within the %s.<br/><br/>' +
+  'Secure transmission from %s, Galactic ID:  %n.<br/><br/>' +
+  '<div style="width: 50%"><span style="color: red"><b>Note:</b> Luke sees the location of the Death Star based on the governance policy for his account. He sees partially redacted information for who sent the transmission, but it\'s enough to validate the transmission is authentic.</span></div><br/>' +
   '<div style="width: 50%; border: 1px dashed #fff; padding: 10px;">' +
   'c - continue<br/>' +
   's - share again<br/>' +
   '</div>';
 
-const VIEW_AS_LEIA_PROMPT = 'Princess, the Death Star is located within %s.<br/><br/>' +
-  'Secure transmission from Sean F****r, Galactic ID: XXXX XXXX %n.<br/><br/>' +
+const VIEW_AS_LEIA_PROMPT = 'Message transmission:<br/><br/>' +
+  'Princess, the Death Star is located within the %s.<br/><br/>' +
+  'Secure transmission from %s, Galactic ID: %n.<br/><br/>' +
+  '<div style="width: 50%"><span style="color: red"><b>Note:</b> Princess Leia sees the location of the Death Star based on the governance policy for her account. She sees partially redacted information for who sent the transmission, but it\'s enough to validate the transmission is authentic.</span></div><br/>' +
   '<div style="width: 50%; border: 1px dashed #fff; padding: 10px;">' +
   'c - continue<br/>' +
   's - share again<br/>' +
   '</div>';
 
 const VIEW_AS_DARTH_VADAR_PROMPT = 'Message transmission:<br/><br/>' +
-  '{<br/>' +
-  '&nbsp;&nbsp;&nbsp;&nbsp;"tokens": [<br/>' +
-  '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ "token": "7afd3186-369f-4898-ac93-3a4e732ebf7c" },<br/>' +
-  '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ "token": "c9f8676b-e4f4-4b40-bd20-3b3e640d4c9a" },<br/>' +
-  '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ "token": "9a6e2a46-bafd-472c-a63b-400f64931dd1" }<br/>' +
-  '&nbsp;&nbsp;&nbsp;&nbsp;]<br/>' +
-  '}<br/><br/>' +
+  '%s<br/><br/>' +
   'Nice try Vadar, even the Force won\'t work this time!<br/><br/>' +
+  '<div style="width: 50%"><span style="color: red"><b>Note:</b> Even if Darth Vadar uses the force to intercept the transmission, he can only see tokens since he doesn\'t have permissions to detokenize the data.</span></div><br/>' +
   '<div style="width: 50%; border: 1px dashed #fff; padding: 10px;">' +
   'c - continue<br/>' +
   's - share again<br/>' +
   '</div>';
 
-const VIEW_AS_JAR_JAR_PROMPT = '**REDACTED**<br/><br/>No one trusts or likes you.<br/><br/>' +
+const VIEW_AS_JAR_JAR_PROMPT = 'Message transmission:<br/><br/>' +
+  '**REDACTED**<br/><br/>No one trusts or likes you.<br/><br/>' +
+  '<div style="width: 50%"><span style="color: red"><b>Note:</b> Jar Jar sees the information fully redacted because the REBEL ALLIANCE can\'t trust him with such important information.</span></div><br/>' +
   '<div style="width: 50%; border: 1px dashed #fff; padding: 10px;">' +
   'c - continue<br/>' +
   's - share again<br/>' +

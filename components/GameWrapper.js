@@ -3,7 +3,27 @@ import React, { Component } from "react";
 import Terminal from '/react-console-emulator/Terminal';
 import FadeIn from 'react-fade-in';
 import 'bootstrap/dist/css/bootstrap.css';
-import Constants from '/defs/Constants.js'
+import Constants from '/defs/Constants.js';
+import Skyflow from 'skyflow-js';
+
+async function getBearerToken() {
+  return new Promise(async function(resolve, reject) {
+    console.log('calling skyflow-token');
+    const res = await fetch('/api/skyflow-token', {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        method: 'GET'
+      }
+    );
+    
+    const result = await res.json();
+
+    resolve(result.accessToken);
+  });
+};
+
+let skyflowClient = false;
 
 // Various game states
 const GAME_STATE_START = 'start';
@@ -46,7 +66,6 @@ class GameWrapper extends Component {
         fn: async () => {
           if(this.state.gameState === GAME_STATE_START) {
             this.setState({ gameState: GAME_STATE_UPGRADE });
-
             return Constants.R2_UPGRADE_PROMPT;
           }
           else if(this.state.gameState === GAME_STATE_SHARE_VIEW) {
@@ -76,64 +95,70 @@ class GameWrapper extends Component {
       email: {
         description: 'Email passed as string.',
         usage: 'email <string>',
-        fn: function () {
-          this.setState({ contactEmail: `${Array.from(arguments).join(' ')}`, gameState: GAME_STATE_GALACTIC_ID });
+        fn: async function () {
+          await this.setState({ contactEmail: `${Array.from(arguments).join(' ')}`, gameState: GAME_STATE_SHARE_VIEW });
+
+          this.saveContactInformation();
 
           return Constants.THANK_YOU_FOR_SHARING_PROMPT;
         }
       },
       1: {
         description: 'Selection of Alderaan System or Luke Skywalker.',
-        fn: function () {
+        fn: async function () {
           if(this.state.gameState === GAME_STATE_DEATH_STAR) {
             this.setState({ deathStarLocation: 'Alderaan System', gameState: GAME_STATE_UPLOAD });
 
             return Constants.R2_READY_PROMPT;
           }
           else { // Share with Luke
-            this.setState({ gameState: GAME_STATE_TRANSMISSION_SENT, sharedWithName: 'Luke Skywalker' });
+            await this.setState({ gameState: GAME_STATE_TRANSMISSION_SENT, sharedWithName: 'Luke Skywalker' });
+            this.saveShare();
             this.sendTransmission();
           }
         }
       },
       2: {
         description: 'Selection of Taroon System or Princess Leia.',
-        fn: function () {
+        fn: async function () {
           if(this.state.gameState === GAME_STATE_DEATH_STAR) {
             this.setState({ deathStarLocation: 'Taroon System', gameState: GAME_STATE_UPLOAD });
 
             return Constants.R2_READY_PROMPT;
           }
           else { // Share with Leia
-            this.setState({ gameState: GAME_STATE_TRANSMISSION_SENT, sharedWithName: 'Princess Leia' });
+            await this.setState({ gameState: GAME_STATE_TRANSMISSION_SENT, sharedWithName: 'Princess Leia' });
+            this.saveShare();
             this.sendTransmission();
           }
         }
       },
       3: {
         description: 'Selection of Hoth System or Darth Vadar.',
-        fn: function () {
+        fn: async function () {
           if(this.state.gameState === GAME_STATE_DEATH_STAR) {
             this.setState({ deathStarLocation: 'Hoth System', gameState: GAME_STATE_UPLOAD });
 
             return Constants.R2_READY_PROMPT;
           }
           else { // Share with Darth Vadar
-            this.setState({ gameState: GAME_STATE_TRANSMISSION_SENT, sharedWithName: 'Darth Vadar' });
+            await this.setState({ gameState: GAME_STATE_TRANSMISSION_SENT, sharedWithName: 'Darth Vadar' });
+            this.saveShare();
             this.sendTransmission();
           }
         }
       },
       4: {
         description: 'Selection of Endor System or Jar Jar.',
-        fn: function () {
+        fn: async function () {
           if(this.state.gameState === GAME_STATE_DEATH_STAR) {
             this.setState({ deathStarLocation: 'Endor System', gameState: GAME_STATE_UPLOAD });
 
             return Constants.R2_READY_PROMPT;
           }
           else { // Share with Jar Jar
-            this.setState({ gameState: GAME_STATE_TRANSMISSION_SENT, sharedWithName: 'Jar Jar Binks' });
+            await this.setState({ gameState: GAME_STATE_TRANSMISSION_SENT, sharedWithName: 'Jar Jar Binks' });
+            this.saveShare();
             this.sendTransmission();
           }
         }
@@ -142,11 +167,14 @@ class GameWrapper extends Component {
         description: 'Displays upgrade/upload counter.',
         fn: () => {
           if(this.state.gameState === GAME_STATE_UPGRADE) {
+            // upgrade R2
+            this.saveUpgrade();
             this.setState({ gameState: GAME_STATE_NAME });
             this.upgradeR2();
           }
           else {
             // upload
+            this.saveMessageToVault();
             this.setState({ gameState: GAME_STATE_SEND_TRANSMISSION });
             this.uploadToR2();
           }
@@ -156,21 +184,40 @@ class GameWrapper extends Component {
       },
       y: {
         description: 'View message as character.',
-        fn: () => {
+        fn: async () => {
           const terminal = this.terminal.current;
           this.setState({ gameState: GAME_STATE_SHARE_VIEW });
+
+          let record = await skyflowClient.getById({
+            records: [
+              {
+                ids: [this.tokens.skyflow_id],
+                table: 'messages',
+                redaction: Skyflow.RedactionType.DEFAULT,
+              }
+            ],
+          });
+
           if(this.state.sharedWithName === 'Luke Skywalker') {
-            let last4 = this.state.galacticId.substring(this.state.galacticId.length - 4);
-            let text = Constants.VIEW_AS_LUKE_PROMPT.replace('%s', this.state.deathStarLocation).replace('%n', last4);
+            let maskedGalacticId = record.records[0].fields.galactic_id;
+            let maskedName = record.records[0].fields.name;
+
+            let text = Constants.VIEW_AS_LUKE_PROMPT.replace('%s', this.state.deathStarLocation).replace('%s', maskedName).replace('%n', maskedGalacticId);
             terminal.pushToStdout(text);
           }
           else if(this.state.sharedWithName === 'Princess Leia') {
-            let last4 = this.state.galacticId.substring(this.state.galacticId.length - 4);
-            let text = Constants.VIEW_AS_LEIA_PROMPT.replace('%s', this.state.deathStarLocation).replace('%n', last4);
+            let maskedGalacticId = record.records[0].fields.galactic_id;
+            let maskedName = record.records[0].fields.name;
+            
+            let text = Constants.VIEW_AS_LEIA_PROMPT.replace('%s', this.state.deathStarLocation).replace('%s', maskedName).replace('%n', maskedGalacticId);
+
             terminal.pushToStdout(text);
           }
           else if(this.state.sharedWithName === 'Darth Vadar') {
-            terminal.pushToStdout(Constants.VIEW_AS_DARTH_VADAR_PROMPT);
+            let tokens = JSON.stringify(this.tokens, null, 2).replaceAll(' ', '&nbsp;');
+            let text = Constants.VIEW_AS_DARTH_VADAR_PROMPT.replace('%s', tokens);
+
+            terminal.pushToStdout(text);
           }
           else if(this.state.sharedWithName === 'Jar Jar Binks') {
             terminal.pushToStdout(Constants.VIEW_AS_JAR_JAR_PROMPT);
@@ -188,6 +235,7 @@ class GameWrapper extends Component {
       s: {
         description: 'Prompt to share again.',
         fn: () => {
+          this.setState({ gameState: GAME_STATE_SEND_TRANSMISSION });
           const terminal = this.terminal.current;
           terminal.pushToStdout(Constants.SHARE_AGAIN_PROMPT);
 
@@ -212,21 +260,49 @@ class GameWrapper extends Component {
     };
   }
 
+  componentDidMount() {
+    this.initVaultDetails();
+  }
+
+  async initVaultDetails() {
+    const response = await fetch('/api/vault-details');
+    const result = await response.json();
+
+    this.vaultId = result.vaultId;
+    this.vaultUrl = result.vaultUrl;
+
+    skyflowClient = Skyflow.init({
+      vaultID: this.vaultId,
+      vaultURL: this.vaultUrl,
+      getBearerToken: getBearerToken,
+      options: {
+        env: Skyflow.Env.DEV
+      }
+    });
+  }
+
   showCongratsMessage() {
     const terminal = this.terminal.current;
     this.setState({ gameState: GAME_STATE_COMPLETE });
+    let congratsMessage = '';
     if(this.state.sharedWithName === 'Luke Skywalker') {
-      terminal.pushToStdout(Constants.CONGRATS_AS_LUKE_PROMPT);
+      congratsMessage = Constants.CONGRATS_AS_LUKE_PROMPT;
     }
     else if(this.state.sharedWithName === 'Princess Leia') {
-      terminal.pushToStdout(Constants.CONGRATS_AS_LEIA_PROMPT);
+      congratsMessage = Constants.CONGRATS_AS_LEIA_PROMPT;
     }
     else if(this.state.sharedWithName === 'Darth Vadar') {
-      terminal.pushToStdout(Constants.CONGRATS_AS_DARTH_VADAR_PROMPT);
+      congratsMessage = Constants.CONGRATS_AS_DARTH_VADAR_PROMPT;
     }
     else if(this.state.sharedWithName === 'Jar Jar Binks') {
-      terminal.pushToStdout(Constants.CONGRATS_AS_JAR_JAR_PROMPT);
-    } 
+      congratsMessage = Constants.CONGRATS_AS_JAR_JAR_PROMPT;
+    }
+
+    if(this.state.contactEmail.length > 0) {
+      congratsMessage = congratsMessage.replace('email &lt;your email&gt;<br/>', '');
+    }
+    
+    terminal.pushToStdout(congratsMessage);
   }
 
   sendTransmission() {
@@ -237,13 +313,22 @@ class GameWrapper extends Component {
         if (this.state.progress === 100) { // Stop at 100%
           clearInterval(interval);
 
+          terminal.clearInput();
+          terminal.scrollToBottom();
+          terminal.focusTerminal();
+
           let priorText = `<br/>${this.state.progressState}: ${this.state.progress}% <span style="color: #3ED631">√</span><br/>`;
           this.setState({ progress: 0, progressState: '', progressText: '', priorText: priorText },
             () => terminal.pushToStdout(`${this.state.priorText}`));
-          this.setState({ isProgressing: false, progress: 0, progressText: '', progressState: '', priorText: '' });
+          this.setState({ isProgressing: false, progress: 0, progressText: '', progressState: '', priorText: '' },
+            () => {
+              let text = Constants.VIEW_MESSAGE_PROMPT.replace('%s', this.state.sharedWithName);
+              terminal.pushToStdout(text);
 
-          let text = Constants.VIEW_MESSAGE_PROMPT.replace('%s', this.state.sharedWithName);
-          terminal.pushToStdout(text);
+              terminal.clearInput();
+              terminal.scrollToBottom();
+              terminal.focusTerminal();
+            });
         } 
         else {
           this.setState({ progress: this.state.progress + 1, progressText: this.state.progressText },
@@ -261,12 +346,28 @@ class GameWrapper extends Component {
         if (this.state.progress === 100) { // Stop at 100%
           clearInterval(interval);
 
+          terminal.clearInput();
+          terminal.scrollToBottom();
+          terminal.focusTerminal();
+
           let priorText = `<br/>${this.state.progressState}: ${this.state.progress}% <span style="color: #3ED631">√</span><br/>`;
           this.setState({ progress: 0, progressState: '', progressText: '', priorText: priorText },
-            () => terminal.pushToStdout(`${this.state.priorText}`));
+            () => {
+              terminal.pushToStdout(`${this.state.priorText}`);
 
-          this.setState({ isProgressing: false, progress: 0, progressText: '', progressState: '', priorText: '' });
-          terminal.pushToStdout(Constants.R2_UPGRADED_SEND_TRANSMISSION_PROMPT);
+              terminal.clearInput();
+              terminal.scrollToBottom();
+              terminal.focusTerminal();
+          });
+
+          this.setState({ isProgressing: false, progress: 0, progressText: '', progressState: '', priorText: '' },
+            () => {
+              terminal.pushToStdout(Constants.R2_UPGRADED_SEND_TRANSMISSION_PROMPT);
+
+              terminal.clearInput();
+              terminal.scrollToBottom();
+              terminal.focusTerminal();
+            });
         } 
         else {
           this.setState({ progress: this.state.progress + 1, progressText: this.state.progressText },
@@ -377,12 +478,12 @@ class GameWrapper extends Component {
         }
 
         if(args.length !== 2 || command.toLocaleLowerCase() !== 'name') {
-          return 'Sorry, please enter name &lt;first_name last_name&gt;. For example "name Joe Smith".';
+          return 'Sorry, please enter name &lt;first_name last_name&gt;. For example: name Joe Smith';
         }
         return false;
       }
       else {
-        return 'Sorry, please enter name &lt;first_name last_name&gt;. For example "name Joe Smith".';
+        return 'Sorry, please enter name &lt;first_name last_name&gt;. For example: name Joe Smith';
       }
     }
     else if(gameState === GAME_STATE_GALACTIC_ID) {
@@ -395,12 +496,12 @@ class GameWrapper extends Component {
 
         if(args.length !== 1 || args[0].length < 8 || !(/^\d+$/.test(args[0]))
           || command.toLocaleLowerCase() !== 'id') {
-          return 'Sorry, please enter ID &lt;your 8 digit id&gt;. For example "ID 12345678".';
+          return 'Sorry, please enter ID &lt;your 8 digit id&gt;. For example: ID 12345678';
         }
         return false; 
       }
       else {
-        return 'Sorry, please enter ID &lt;your 8 digit id&gt;. For example "ID 12345678".';
+        return 'Sorry, please enter ID &lt;your 8 digit id&gt;. For example: ID 12345678';
       }
     }
     else if(gameState === GAME_STATE_DEATH_STAR) {
@@ -437,16 +538,87 @@ class GameWrapper extends Component {
         }
 
         if(args.length !== 1 || !(/^$|^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,})$/.test(args[0]))) {
-          return 'Sorry, please enter email &lt;your email&gt;. For example "email joe@email.com".';
+          return 'Sorry, please enter email &lt;your email&gt;. For example: email joe@email.com';
         }
         return false; 
       }
       else {
-        return 'Sorry, please enter email &lt;your email&gt;. For example "email joe@email.com".';
+        return 'Sorry, please enter email &lt;your email&gt;. For example: email joe@email.com';
       }
     }
 
     return false;
+  }
+
+  async saveMessageToVault() {
+    let createdDate = new Date(new Date().toString().split('GMT')[0]+' UTC').toISOString().split('.')[0];
+
+    let response = await skyflowClient.insert({
+      records: [
+        {
+          fields: {
+            name: this.state.playerName,
+            galactic_id: this.state.galacticId,
+            death_star_location: this.state.deathStarLocation,
+            created_date: createdDate
+          },
+          table: 'messages'
+        }
+      ]
+    }, { tokens: true });
+
+    this.tokens = response.records[0].fields;
+  }
+
+  async saveContactInformation() {
+    let createdDate = new Date(new Date().toString().split('GMT')[0]+' UTC').toISOString().split('.')[0];
+
+    let response = await skyflowClient.insert({
+      records: [
+        {
+          fields: {
+            email: this.state.contactEmail,
+            messages_skyflow_id: this.tokens.skyflow_id,
+            created_date: createdDate
+          },
+          table: 'contacts'
+        }
+      ]
+    });
+
+    console.log(response);
+  }
+
+  async saveUpgrade() {
+    let createdDate = new Date(new Date().toString().split('GMT')[0]+' UTC').toISOString().split('.')[0];
+
+    let response = await skyflowClient.insert({
+      records: [
+        {
+          fields: {
+            upgrade_date: createdDate
+          },
+          table: 'upgrades'
+        }
+      ]
+    });
+  }
+
+  async saveShare() {
+    let createdDate = new Date(new Date().toString().split('GMT')[0]+' UTC').toISOString().split('.')[0];
+
+    let response = await skyflowClient.insert({
+      records: [
+        {
+          fields: {
+            messages_skyflow_id: this.tokens.skyflow_id,
+            shared_with_name: this.state.sharedWithName,
+            created_date: createdDate
+          },
+          table: 'shares'
+        }
+      ]
+    });
   }
 
   render() {

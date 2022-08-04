@@ -1,3 +1,4 @@
+credentials/*.json
 .DS_Store
 
 # Logs
@@ -104,3 +105,4 @@ dist
 
 # TernJS port file
 .tern-port
+.vercel
