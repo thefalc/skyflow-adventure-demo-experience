@@ -8,7 +8,6 @@ import Skyflow from 'skyflow-js';
 
 async function getBearerToken() {
   return new Promise(async function(resolve, reject) {
-    console.log('calling skyflow-token');
     const res = await fetch('/api/skyflow-token', {
         headers: {
           'Content-Type': 'application/json'
@@ -71,6 +70,13 @@ class GameWrapper extends Component {
           else if(this.state.gameState === GAME_STATE_SHARE_VIEW) {
             this.showCongratsMessage();
           }
+        }
+      },
+      a: {
+        description: 'Analytics view',
+        fn: async () => {
+          this.showAnalytics();
+          return '<br/>Collecting stats, please wait...';
         }
       },
       name: {
@@ -281,6 +287,135 @@ class GameWrapper extends Component {
     });
   }
 
+  async showAnalytics() {
+    this.setState({ isProgressing: true }, async () => {
+      const terminal = this.terminal.current;
+
+      let skyflowId = false;
+      if(this.tokens !== undefined && this.tokens.skyflow_id !== undefined) {
+        skyflowId = this.tokens.skyflow_id;
+      }
+
+      const response = await fetch('/api/get-vault-stats?skyflowId=' + skyflowId);
+      const result = await response.json();
+
+      let shareChart = this.showChart('Total Shares by Character', result.shareCounts);
+      let deathStarChart = this.showChart('Location of Death Star', result.deathStarLocationCounts);
+
+      await this.setState({ isProgressing: false });
+
+      terminal.pushToStdout('<div style="margin-top: 10px;"><canvas id="' + shareChart.canvasId + '"></canvas></div><br/><div>');
+      terminal.pushToStdout('<div><canvas id="' + deathStarChart.canvasId + '"></canvas></div>');
+
+      new Chart(
+        document.getElementById(shareChart.canvasId),
+        shareChart.config
+      );
+
+      new Chart(
+        document.getElementById(deathStarChart.canvasId),
+        deathStarChart.config
+      );
+
+      terminal.pushToStdout('<br/>Total R2 Upgrades: ' + result.r2Upgrades + '<br/><br/>');
+
+      if(skyflowId) {
+        terminal.pushToStdout('Vault record as a REBEL ALLIANCE member would see it.<br/><br/>' +
+          '<div style="width: 100%; border: 1px dashed #fff;">' +
+          '<div style="width: 40%; border-right: 1px dashed #fff; display: inline-block; padding: 0px 10px;">Name</div><div style="width: 60%; display: inline-block; padding: 0px 10px;">' + result.vaultRecord.fields.name + '</div>' +
+          '<div style="width: 40%; border-right: 1px dashed #fff; display: inline-block; padding: 0px 10px;">Galactic ID</div><div style="width: 60%; display: inline-block; padding: 0px 10px;">' + result.vaultRecord.fields.galactic_id + '</div>' +
+          '<div style="width: 40%; border-right: 1px dashed #fff; display: inline-block; padding: 0px 10px;">Death Star</div><div style="width: 60%; display: inline-block; padding: 0px 10px;">' + result.vaultRecord.fields.death_star_location + '</div>' +
+          '</div>');
+      }
+      
+      let prompt = '';
+      if(this.state.contactEmail.length === 0) {
+        prompt += '<br/>If you are enjoying this, please share your email to learn more.<br/><br/>' +
+        '<div style="width: 50%; border: 1px dashed #fff; padding: 10px;">' +
+        'email &lt;your email&gt;<br/>';
+      }
+
+      prompt += 'r - return to start<br/>';
+
+      if(this.state.deathStarLocation.length > 0) {
+        prompt += 's - share again<br/>';
+      }
+
+      prompt += '</div>';
+      terminal.pushToStdout(prompt);
+
+      terminal.clearInput();
+      terminal.scrollToBottom();
+      terminal.focusTerminal();
+    });
+  }
+
+  showChart(chartTitle, chartData) {
+    const data = {
+      labels: Object.keys(chartData),
+      datasets: [{
+        label: chartTitle,
+        backgroundColor: 'transparent',
+        borderColor: '#bbbbbb',
+        color: '#ffffff',
+        borderWidth: 1,
+        borderSkipped: false,
+        scaleStepWidth: 1,
+        data: Object.values(chartData),
+      }]
+    };
+  
+    const config = {
+      type: 'bar',
+      data: data,
+      options: { 
+        indexAxis: 'y',
+        plugins: {
+          legend: {
+            display: false,
+          },
+          title: {
+            color: '#ffffff',
+            display: true,
+            text: chartTitle,
+            font: {
+              family: 'monospace'
+            }
+          },
+        },
+        scales: {
+          y: {
+            ticks: {
+              color: '#ffffff',
+              stepSize: 1,
+              beginAtZero: true,
+              font: {
+                family: 'monospace'
+              }
+            }
+          },
+          x: {
+            ticks: {
+              color: '#ffffff',
+              stepSize: 1,
+              beginAtZero: true,
+              font: {
+                family: 'monospace'
+              }
+            }
+          }
+        }
+      }
+    };
+
+    let canvasId = "chart-" + (Math.random() * 100000000);
+
+    return {
+      canvasId: canvasId,
+      config: config
+    }
+  }
+
   showCongratsMessage() {
     const terminal = this.terminal.current;
     this.setState({ gameState: GAME_STATE_COMPLETE });
@@ -300,6 +435,7 @@ class GameWrapper extends Component {
 
     if(this.state.contactEmail.length > 0) {
       congratsMessage = congratsMessage.replace('email &lt;your email&gt;<br/>', '');
+      congratsMessage = congratsMessage.replace('If you enjoyed that experience, please share your email to learn more.<br/><br/>', 'Please select a command below.<br/><br/>');
     }
     
     terminal.pushToStdout(congratsMessage);
@@ -446,13 +582,13 @@ class GameWrapper extends Component {
     const gameState = state.gameState;
 
     if(gameState === GAME_STATE_START) {
-      if(command !== 'c') {
+      if(!['c', 'r', 'a'].includes(command)) {
         return 'Please enter the letter c to begin your adventure.';
       }
       return false;
     }
     else if(gameState === GAME_STATE_SHARE_VIEW) {
-      if(!['c', 's', 'r'].includes(command)) {
+      if(!['c', 's', 'r', 'a'].includes(command)) {
         return 'Please enter the letter c to continue your adventure or s to share again.';
       }
       return false;
@@ -585,8 +721,6 @@ class GameWrapper extends Component {
         }
       ]
     });
-
-    console.log(response);
   }
 
   async saveUpgrade() {

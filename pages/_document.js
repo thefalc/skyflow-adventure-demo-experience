@@ -20,6 +20,7 @@ export default function Document() {
           href="https://fonts.googleapis.com/css?family=Roboto Mono"
           rel="stylesheet"
         />
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <link rel="shortcut icon" type="image/png" href="/static/images/skyflow-logo-new.png" />
       </Head>
       <body>

@@ -6,9 +6,6 @@ import path from 'path';
 
 export default withIronSessionApiRoute(
   async function handler(req, res) {
-
-    console.log('skyflow-token');
-
     const file = path.join(process.cwd(), 'credentials', 'client-side-sdk.json');
     const credentialsJsonAsString = readFileSync(file, 'utf8');
 
