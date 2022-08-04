@@ -452,7 +452,7 @@ class GameWrapper extends Component {
       return false;
     }
     else if(gameState === GAME_STATE_SHARE_VIEW) {
-      if(!['c', 's'].includes(command)) {
+      if(!['c', 's', 'r'].includes(command)) {
         return 'Please enter the letter c to continue your adventure or s to share again.';
       }
       return false;
