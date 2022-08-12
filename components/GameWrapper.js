@@ -73,8 +73,6 @@ class GameWrapper extends Component {
             terminal.clearInput()
             terminal.hideKeyboard()
             terminal.scrollToBottom()
-
-            // return Constants.R2_UPGRADE_PROMPT;
           }
           else if(this.state.gameState === GAME_STATE_SHARE_VIEW) {
             this.showCongratsMessage();

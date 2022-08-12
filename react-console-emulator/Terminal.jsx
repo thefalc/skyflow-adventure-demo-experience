@@ -68,7 +68,7 @@ export default class Terminal extends Component {
     // This may look ridiculous, but it is necessary to decouple execution for just a millisecond in order to scroll all the way
     setTimeout(() => {
       this.el.scrollIntoView({ behavior: 'smooth' });
-    }, 100)
+    }, 350)
   }
 
   validateCommands = () => {
