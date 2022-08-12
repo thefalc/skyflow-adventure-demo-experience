@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import defaults from 'defaults'
 import isEqual from 'react-fast-compare'
+// import {isMobile, browserName, isBrowser} from 'react-device-detect';
 
 // Components
 import TerminalMessage from './TerminalMessage'
@@ -18,6 +19,8 @@ import types from './defs/types/Terminal'
 import commandExists from './utils/commandExists'
 import constructEcho from './utils/constructEcho'
 import shouldPromptBeVisible from './utils/shouldPromptBeVisible'
+
+const isMobile = () => window.matchMedia && window.matchMedia("(max-width: 480px)").matches
 
 export default class Terminal extends Component {
   constructor (props) {
@@ -47,13 +50,16 @@ export default class Terminal extends Component {
 
   /* istanbul ignore next: Covered by interactivity tests */
   scrollToBottom = () => {
-    console.log('scrolling');
-    const rootNode = this.terminalRoot.current
+    const rootNode = this.terminalInput.current
+    // const rootNode = this.el;
 
-    this.el.scrollIntoView({ behavior: 'smooth' });
+    // rootNode.scrollTop = rootNode.scrollHeight;
+    // this.el.scrollIntoView({ behavior: 'smooth' });
 
     // This may look ridiculous, but it is necessary to decouple execution for just a millisecond in order to scroll all the way
-    // setTimeout(() => { rootNode.scrollTop = rootNode.scrollHeight }, 1)
+    setTimeout(() => {
+      this.el.scrollIntoView({ behavior: 'smooth' });
+    }, 10)
   }
 
   validateCommands = () => {
@@ -198,7 +204,9 @@ export default class Terminal extends Component {
       this.scrollToBottom()
       this.focusTerminal()
 
-      this.terminalInput.current.blur()
+      if(isMobile()) {
+        this.terminalInput.current.blur()
+      }
     })
   }
 
@@ -288,9 +296,9 @@ export default class Terminal extends Component {
               autoComplete='off'
               disabled={this.props.disabled || (this.props.disableOnProcess && /* istanbul ignore next: Covered by interactivity tests */ this.state.processing)}
             />
-
-            <div ref={el => { this.el = el; }} />
           </div>
+
+          <div ref={el => { this.el = el; }}>&nbsp;</div>
         </div>
       </div>
     )
