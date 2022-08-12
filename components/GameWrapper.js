@@ -317,10 +317,10 @@ class GameWrapper extends Component {
         deathStarChart.config
       );
 
-      terminal.pushToStdout('<br/>Total R2 Upgrades: ' + result.r2Upgrades + '<br/><br/>');
+      terminal.pushToStdout('<br/>Total R2 Upgrades: ' + result.r2Upgrades + '<br/>');
 
       if(skyflowId) {
-        terminal.pushToStdout('Vault record as a REBEL ALLIANCE member would see it.<br/><br/>' +
+        terminal.pushToStdout('<br/>Vault record as a REBEL ALLIANCE member would see it.<br/><br/>' +
           '<div style="width: 100%; border: 1px dashed #fff;">' +
           '<div style="width: 40%; border-right: 1px dashed #fff; display: inline-block; padding: 0px 10px;">Name</div><div style="width: 60%; display: inline-block; padding: 0px 10px;">' + result.vaultRecord.fields.name + '</div>' +
           '<div style="width: 40%; border-right: 1px dashed #fff; display: inline-block; padding: 0px 10px;">Galactic ID</div><div style="width: 60%; display: inline-block; padding: 0px 10px;">' + result.vaultRecord.fields.galactic_id + '</div>' +
@@ -580,6 +580,7 @@ class GameWrapper extends Component {
    */
   errorHandler(command, state, args) {
     const gameState = state.gameState;
+    command = command.toLocaleLowerCase();
 
     if(gameState === GAME_STATE_START) {
       if(!['c', 'r', 'a'].includes(command)) {
@@ -588,7 +589,7 @@ class GameWrapper extends Component {
       return false;
     }
     else if(gameState === GAME_STATE_SHARE_VIEW) {
-      if(!['c', 's', 'r', 'a'].includes(command)) {
+      if(!['c', 's', 'r', 'a', 'email'].includes(command)) {
         return 'Please enter the letter c to continue your adventure or s to share again.';
       }
       return false;
@@ -610,7 +611,7 @@ class GameWrapper extends Component {
         let args = [];
         let counter = 0;
         for (let prop in arguments) {
-          if(counter++ > 1) args.push(arguments[prop]);
+          if(counter++ > 1 && arguments[prop].trim().length > 0) args.push(arguments[prop]);
         }
 
         if(args.length !== 2 || command.toLocaleLowerCase() !== 'name') {
@@ -802,9 +803,9 @@ class GameWrapper extends Component {
                     locked={this.state.isProgressing}
                     style={{ backgroundColor: 'transparent' }}
                     messageStyle={{ lineHeight: '15px' }}
-                    contentStyle={{ color: '#FFFFFF', padding: '20px 10px', background: 'transparent', fontSize: '11px', lineHeight: '16px' }} // Text colour
+                    contentStyle={{ color: '#FFFFFF', padding: '20px 10px', background: 'transparent', fontSize: '12px', lineHeight: '16px' }} // Text colour
                     promptLabelStyle={{ color: 'rgb(255, 208, 52)' }} // Prompt label colour
-                    inputTextStyle={{ color: 'rgb(255, 208, 52)', fontSize: '11px', lineHeight: '16px' }} // Prompt text colour
+                    inputTextStyle={{ color: 'rgb(255, 208, 52)', fontSize: '12px', lineHeight: '16px' }} // Prompt text colour
                   /> 
                 </div>
               </FadeIn>

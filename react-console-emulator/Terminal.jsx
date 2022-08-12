@@ -197,6 +197,8 @@ export default class Terminal extends Component {
       this.clearInput()
       this.scrollToBottom()
       this.focusTerminal()
+
+      this.terminalInput.current.blur()
     })
   }
 
