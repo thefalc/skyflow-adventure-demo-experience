@@ -63,9 +63,18 @@ class GameWrapper extends Component {
       c: {
         description: 'Continues the game. Prompts to upgrade R2',
         fn: async () => {
+          
           if(this.state.gameState === GAME_STATE_START) {
-            this.setState({ gameState: GAME_STATE_UPGRADE });
-            return Constants.R2_UPGRADE_PROMPT;
+            const terminal = this.terminal.current;
+            await this.setState({ gameState: GAME_STATE_UPGRADE });
+
+            terminal.pushToStdout(Constants.R2_UPGRADE_PROMPT);
+
+            terminal.clearInput()
+            terminal.hideKeyboard()
+            terminal.scrollToBottom()
+
+            // return Constants.R2_UPGRADE_PROMPT;
           }
           else if(this.state.gameState === GAME_STATE_SHARE_VIEW) {
             this.showCongratsMessage();
@@ -346,7 +355,8 @@ class GameWrapper extends Component {
 
       terminal.clearInput();
       terminal.scrollToBottom();
-      terminal.focusTerminal();
+      // terminal.focusTerminal();
+      terminal.hideKeyboard();
     });
   }
 
@@ -439,6 +449,9 @@ class GameWrapper extends Component {
     }
     
     terminal.pushToStdout(congratsMessage);
+    terminal.clearInput()
+    terminal.hideKeyboard()
+    terminal.scrollToBottom()
   }
 
   sendTransmission() {
@@ -451,7 +464,7 @@ class GameWrapper extends Component {
 
           terminal.clearInput();
           terminal.scrollToBottom();
-          terminal.focusTerminal();
+          // terminal.focusTerminal();
 
           let priorText = `<br/>${this.state.progressState}: ${this.state.progress}% <span style="color: #3ED631">√</span><br/>`;
           this.setState({ progress: 0, progressState: '', progressText: '', priorText: priorText },
@@ -463,7 +476,8 @@ class GameWrapper extends Component {
 
               terminal.clearInput();
               terminal.scrollToBottom();
-              terminal.focusTerminal();
+              // terminal.focusTerminal();
+              terminal.hideKeyboard();
             });
         } 
         else {
@@ -484,7 +498,7 @@ class GameWrapper extends Component {
 
           terminal.clearInput();
           terminal.scrollToBottom();
-          terminal.focusTerminal();
+          // terminal.focusTerminal();
 
           let priorText = `<br/>${this.state.progressState}: ${this.state.progress}% <span style="color: #3ED631">√</span><br/>`;
           this.setState({ progress: 0, progressState: '', progressText: '', priorText: priorText },
@@ -493,7 +507,8 @@ class GameWrapper extends Component {
 
               terminal.clearInput();
               terminal.scrollToBottom();
-              terminal.focusTerminal();
+              // terminal.focusTerminal();
+              terminal.hideKeyboard();
           });
 
           this.setState({ isProgressing: false, progress: 0, progressText: '', progressState: '', priorText: '' },
@@ -502,7 +517,8 @@ class GameWrapper extends Component {
 
               terminal.clearInput();
               terminal.scrollToBottom();
-              terminal.focusTerminal();
+              // terminal.focusTerminal();
+              terminal.hideKeyboard();
             });
         } 
         else {
@@ -523,7 +539,7 @@ class GameWrapper extends Component {
         if (this.state.progress === 100) { // Stop at 100%
           terminal.clearInput();
           terminal.scrollToBottom();
-          terminal.focusTerminal();
+          // terminal.focusTerminal();
 
           if(this.state.progressState === 'Vault APIs') {
             clearInterval(interval);
@@ -538,7 +554,8 @@ class GameWrapper extends Component {
 
                 terminal.clearInput();
                 terminal.scrollToBottom();
-                terminal.focusTerminal();
+                // terminal.focusTerminal();
+                terminal.hideKeyboard();
               });
           }
           else if(this.state.progressState === 'Encryption') {
@@ -798,7 +815,7 @@ class GameWrapper extends Component {
                     ignoreCommandCase
                     viewState={this.state}
                     errorHandler={this.errorHandler}
-                    autoFocus='true'
+                    autoFocus='false'
                     disabled={this.state.isProgressing}
                     locked={this.state.isProgressing}
                     style={{ backgroundColor: 'transparent' }}

@@ -31,7 +31,7 @@ const R2_GREETING_PROMPT = 'R2 says, “BeeYoop BeeDeepBoom Weeop DEEpaEEya”, 
   'ID &lt;your 8 digit ID&gt;' +
   '</div>';
 
-const DEATH_STAR_LOCATION_PROMPT = 'Choosing from the menu below, which star system the Death Star is located in?<br/><br/>' +
+const DEATH_STAR_LOCATION_PROMPT = 'Choose from the menu below. Which star system is the Death Star located in?<br/><br/>' +
   '<div style="width: 80%; border: 1px dashed #fff; padding: 10px;">' +
   '1 - The Alderaan System<br/>' +
   '2 - The Taroon System<br/>' +
@@ -95,7 +95,7 @@ const VIEW_AS_DARTH_VADAR_PROMPT = 'Message transmission:<br/><br/>' +
 const VIEW_AS_JAR_JAR_PROMPT = 'Message transmission:<br/><br/>' +
   '**REDACTED**<br/><br/>No one trusts or likes you.<br/><br/>' +
   '<div"><span style="color: red"><b>Note:</b> Jar Jar sees the information fully redacted because the REBEL ALLIANCE can\'t trust him with such important information.</span></div><br/>' +
-  '<div style="width: 80%; border: 1px dashed #fff; padding: 10px;">' +
+  '<div style="width: 80%; border: 1px dashed #fff; padding: 10px; margin-top: 8px;">' +
   'c - continue<br/>' +
   's - share again<br/>' +
   'a - see analytics<br/>' +

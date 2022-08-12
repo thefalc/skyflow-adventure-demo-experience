@@ -48,6 +48,15 @@ export default class Terminal extends Component {
     if (!isTextSelected) this.terminalInput.current.focus()
   }
 
+  hideKeyboard = () => {
+    if(isMobile()) {
+      this.terminalInput.current.blur();
+    }
+    else {
+      this.focusTerminal();
+    }
+  }
+
   /* istanbul ignore next: Covered by interactivity tests */
   scrollToBottom = () => {
     const rootNode = this.terminalInput.current
@@ -59,7 +68,7 @@ export default class Terminal extends Component {
     // This may look ridiculous, but it is necessary to decouple execution for just a millisecond in order to scroll all the way
     setTimeout(() => {
       this.el.scrollIntoView({ behavior: 'smooth' });
-    }, 10)
+    }, 100)
   }
 
   validateCommands = () => {
@@ -162,6 +171,9 @@ export default class Terminal extends Component {
         const rawCommand = input.splice(0, 1)[0] // Removed portion is returned...
         const args = input // ...and the rest can be used
 
+        // Hack for ID changing to I'd on mobile, makes input easier
+        if(rawCommand.toLowerCase() === 'i\'d') { rawCommand = 'ID' };
+
         commandResult.rawInput = rawInput
         commandResult.command = rawCommand
         commandResult.args = args
@@ -175,6 +187,11 @@ export default class Terminal extends Component {
 
         if(errorString && errorString.length) {
           this.pushToStdout(errorString);
+
+          this.clearInput()
+          // this.focusTerminal()
+          this.hideKeyboard()
+          this.scrollToBottom()
         }
         else if (!exists) {
           this.pushToStdout(this.props.errorText
@@ -197,16 +214,13 @@ export default class Terminal extends Component {
         this.scrollToBottom()
         if (this.props.commandCallback) this.props.commandCallback(commandResult)
 
-        this.focusTerminal()
+        // this.focusTerminal()
       })
 
       this.clearInput()
+      // this.focusTerminal()
+      this.hideKeyboard()
       this.scrollToBottom()
-      this.focusTerminal()
-
-      if(isMobile()) {
-        this.terminalInput.current.blur()
-      }
     })
   }
 
